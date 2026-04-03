@@ -17,7 +17,6 @@ public class StartSceneManager : MonoBehaviour
 
     public void OnStartGameClicked()
     {
-        //GameManager.Instance.GameContinue();
         SceneChangeManager.ChangeScene(MainMenuScene);
     }
 }
