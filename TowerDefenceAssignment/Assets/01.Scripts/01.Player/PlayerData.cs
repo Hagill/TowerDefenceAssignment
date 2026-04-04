@@ -7,4 +7,5 @@ public class PlayerData : ScriptableObject
     public float attackPoint;
     public float attackCooldown;
     public float bulletMoveSpeed;
+    public float bulletLifeTime;
 }

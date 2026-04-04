@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6175946853133862033}
   - component: {fileID: 3591093704466250237}
   - component: {fileID: 6838630172403564137}
+  - component: {fileID: -6355492771119536982}
   m_Layer: 0
   m_Name: Bullet
   m_TagString: Untagged
@@ -157,3 +158,20 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &-6355492771119536982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3313020399635634423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89a8c0f30d3261146b4156978058e407, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Bullet
+  originalPrefab: {fileID: 3313020399635634423}
+  monsterLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  bulletLifetime: 3

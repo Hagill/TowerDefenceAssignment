@@ -6,4 +6,9 @@ public static class ConstValue
     public const string MainMenuScene = "MainMenuScene";
     public const string GameScene = "GameScene";
     #endregion
+
+    #region Animation
+    public const string AxisX = "AxisX";
+    public const string MoveAnim = "Move";
+    #endregion
 }

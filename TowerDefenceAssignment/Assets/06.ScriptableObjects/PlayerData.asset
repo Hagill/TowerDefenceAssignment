@@ -16,3 +16,4 @@ MonoBehaviour:
   attackPoint: 10
   attackCooldown: 0.3
   bulletMoveSpeed: 5
+  bulletLifeTime: 3

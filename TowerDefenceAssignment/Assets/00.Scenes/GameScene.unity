@@ -163,6 +163,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d37ce6970d44237449becbf7023d34e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectPoolManager
+  pools:
+  - prefab: {fileID: 3313020399635634423, guid: 25593a327e090c3479d58610e88715cf, type: 3}
+    size: 50
 --- !u!1 &44751595
 GameObject:
   m_ObjectHideFlags: 0
