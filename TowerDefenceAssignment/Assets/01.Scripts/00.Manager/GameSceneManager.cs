@@ -77,9 +77,19 @@ public class GameSceneManager : MonoBehaviour
 
     public void ShowGameOverPopup()
     {
+        gameManager.GameOver();
         popupPanel.SetActive(true);
         continueButton.gameObject.SetActive(false);
         popupTitleText.text = "GameOver";
         popupTitleText.color = Color.red;
+    }
+
+    public void ShowGameClearPopup()
+    {
+        gameManager.GameClear();
+        popupPanel.SetActive(true);
+        continueButton.gameObject.SetActive(false);
+        popupTitleText.text = "GameClear";
+        popupTitleText.color = Color.green;
     }
 }

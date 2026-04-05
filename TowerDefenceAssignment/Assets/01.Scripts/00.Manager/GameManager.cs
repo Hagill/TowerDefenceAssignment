@@ -36,6 +36,11 @@ public class GameManager : SingletonManager<GameManager>
         Time.timeScale = 1f;
     }
 
+    public void GameClear()
+    {
+        Time.timeScale = 0f;
+    }
+
     public void GameOver()
     {
         isGameOver = true;

@@ -8,6 +8,7 @@ public class Bullet : MonoBehaviour
     private float bulletLifetime;
     private float currentLifetime;
     private float bulletMoveSpeed;
+    private float bulletDamage;
 
     private void Start()
     {
@@ -31,7 +32,7 @@ public class Bullet : MonoBehaviour
 
         if (((1<<currentCollision.layer) & monsterLayer) != 0)
         {
-            //collision.GetComponent<Monster>().TakeDamage(player.AttackPoint);
+            collision.GetComponent<MonsterBody>().TakeDamage(bulletDamage);
             ObjectPoolManager.Instance.ReturnToPool(gameObject, originalPrefab);
         }
     }
@@ -40,5 +41,6 @@ public class Bullet : MonoBehaviour
     {
         bulletMoveSpeed = player.BulletMoveSpeed;
         bulletLifetime = player.BulletLifeTime;
+        bulletDamage = player.AttackPoint;
     }
 }
