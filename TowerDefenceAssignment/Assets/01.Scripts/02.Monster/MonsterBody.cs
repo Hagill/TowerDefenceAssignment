@@ -1,8 +1,10 @@
 using UnityEngine;
-using System.Collections.Generic;
+using TMPro;
 
 public class MonsterBody : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI hpText;
+
     private MonsterHead monsterHead;
     private bool isActive;
     private bool isMoving;
@@ -34,6 +36,7 @@ public class MonsterBody : MonoBehaviour
 
         maxHp = hp;
         currentHp = maxHp;
+        UpdateHpText();
     }
 
     public void SetMoving(bool moving)
@@ -127,9 +130,19 @@ public class MonsterBody : MonoBehaviour
         IsConnected = false;
     }
 
+    private void UpdateHpText()
+    {
+        if (hpText != null)
+        {
+            hpText.text = Mathf.CeilToInt(currentHp).ToString();
+        }
+    }
+
     public void TakeDamage(float damage)
     {
         currentHp -= damage;
+        UpdateHpText();
+
         if (currentHp <= 0f)
         {
             Die();

@@ -4,13 +4,18 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] private GameObject originalPrefab;
     [SerializeField] private LayerMask monsterLayer;
-    
+
     private float bulletLifetime;
     private float currentLifetime;
     private float bulletMoveSpeed;
     private float bulletDamage;
 
     private void Start()
+    {
+        currentLifetime = bulletLifetime;
+    }
+
+    private void OnEnable()
     {
         currentLifetime = bulletLifetime;
     }
@@ -32,8 +37,12 @@ public class Bullet : MonoBehaviour
 
         if (((1<<currentCollision.layer) & monsterLayer) != 0)
         {
-            collision.GetComponent<MonsterBody>().TakeDamage(bulletDamage);
-            ObjectPoolManager.Instance.ReturnToPool(gameObject, originalPrefab);
+            MonsterBody body = currentCollision.GetComponent<MonsterBody>();
+            if (body != null)
+            {
+                body.TakeDamage(bulletDamage);
+                ObjectPoolManager.Instance.ReturnToPool(gameObject, originalPrefab);
+            }
         }
     }
 
