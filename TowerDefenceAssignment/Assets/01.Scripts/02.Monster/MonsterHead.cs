@@ -1,87 +1,55 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class MonsterHead : MonoBehaviour
 {
     [SerializeField] private Transform[] waypoints;
     [SerializeField] private float connectMoveSpeed;
-    private float moveSpeed;
+    [SerializeField] private float bodySpace;
+    private Monster monster;
 
-    private int currentWaypointIndex = 0;
-
+    public Transform[] Waypoints => waypoints;
+    public float BodySpace => bodySpace;
+    public float ConnectMoveSpeed => connectMoveSpeed;
     public Vector3 PathStartPoint => waypoints[0].position;
-    public int CurrentWaypointIndex => currentWaypointIndex;
-    public Transform[] WayPoints => waypoints;
-    public bool IsReverse { get; private set; } = false;
-    public bool IsConnected { get; private set; } = false;
-    private Vector3 connectTargetPostion;
 
+    private List<MonsterBody> activeBodies;
 
     private void Start()
     {
-        moveSpeed = GetComponentInParent<Monster>().MoveSpeed;
+        monster = GetComponentInParent<Monster>();
     }
 
     private void Update()
     {
-        if (IsReverse)
+        if (activeBodies != null && activeBodies.Count > 0)
         {
-            MoveReverse();
+            MonsterBody frontBody = activeBodies[0];
+
+            if (frontBody != null && frontBody.gameObject.activeInHierarchy)
+            {
+                Vector3 moveDir = frontBody.GetMoveDirection();
+                transform.position = frontBody.transform.position + moveDir * bodySpace;
+            }
         }
         else
         {
-            MoveForward();
+            ReturnToStartPoint();
         }
     }
 
-    private void MoveForward()
+    private void ReturnToStartPoint()
     {
-        if (CurrentWaypointIndex >= waypoints.Length) return;
-
-        Transform target = waypoints[CurrentWaypointIndex];
-        transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
-
-        if (Vector3.Distance(transform.position, target.position) < 0.01f)
-        {
-            currentWaypointIndex++;
-        }
+        transform.position = Vector3.Lerp(transform.position, PathStartPoint, Time.deltaTime * 5f);
     }
 
-    private void MoveReverse()
+    public void InitBodies(List<MonsterBody> bodies)
     {
-        if (Vector3.Distance(transform.position, connectTargetPostion) < 0.1f)
-        {
-            IsConnected = true;
-            IsReverse = false;
-            return;
-        }
-
-        if (currentWaypointIndex <= 0)
-        {
-            IsConnected = true;
-            IsReverse = false;
-            return;
-        }
-
-        Transform target = waypoints[currentWaypointIndex - 1];
-        transform.position = Vector3.MoveTowards(transform.position, target.position, connectMoveSpeed * Time.deltaTime);
-
-        if (Vector3.Distance(transform.position, target.position) < 0.01f)
-        {
-            currentWaypointIndex--;
-        }
+        activeBodies = bodies;
     }
 
-    public void StartReverse(Vector3 targetPosition)
+    public void OnBodyDead(MonsterBody deadBody)
     {
-        connectTargetPostion = targetPosition;
-        IsReverse = true;
-        IsConnected = false;
-    }
-
-    public void StopReverse()
-    {
-        IsReverse = false;
-        IsConnected = false;
+        monster.OnBodyDead(deadBody);
     }
 }

@@ -3,49 +3,128 @@ using System.Collections.Generic;
 
 public class MonsterBody : MonoBehaviour
 {
-    private Transform followTarget;
-    private Monster parentMonster;
+    private MonsterHead monsterHead;
     private bool isActive;
-    
-    private float space;
+    private bool isMoving;
+    private bool isReversing;
+
+    private Transform[] waypoints;
+    private int currentWaypointIndex;
+    private float moveSpeed;
+    private float connectMoveSpeed;
+    private float reverseDistanceRemaining;
 
     private float maxHp;
     private float currentHp;
 
-    public Monster ParentMonster => parentMonster;
+    public bool IsConnected { get; private set; } = false;
 
-    public void Init(Monster monster, Transform target, float bodySpace, float hp)
+    public void Init(MonsterHead head, Transform[] waypoints, float moveSpeed, float connectMoveSpeed, float hp)
     {
-        parentMonster = monster;
-        space = bodySpace;
-        followTarget = target;
+        monsterHead = head;
+        this.waypoints = waypoints;
+        this.moveSpeed = moveSpeed;
+        this.connectMoveSpeed = connectMoveSpeed;
+        currentWaypointIndex = 0;
+        reverseDistanceRemaining = 0;
         isActive = true;
+        isMoving = true;
+        isReversing = false;
+        IsConnected = false;
 
         maxHp = hp;
         currentHp = maxHp;
     }
 
-    public void SetFollowTarget(Transform target)
+    public void SetMoving(bool moving)
     {
-        followTarget = target;
+        isMoving = moving;
+    }
+
+    public void StartReconnect()
+    {
+        isReversing = true;
+        isMoving = false;
+        IsConnected = false;
     }
 
     private void Update()
     {
         if (!isActive) return;
-        FollowTarget();
+
+        if (isReversing)
+            MoveReverse();
+        else if (isMoving)
+            MoveForward();
     }
 
-    private void FollowTarget()
+    private void MoveForward()
     {
-        if (followTarget == null) return;
+        if (waypoints == null || currentWaypointIndex >= waypoints.Length) return;
 
-        float dist = Vector3.Distance(transform.position, followTarget.position);
-        if (dist > space)
+        Transform target = waypoints[currentWaypointIndex];
+        transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
+
+        if (transform.position == target.position)
+            currentWaypointIndex++;
+    }
+
+    private void MoveReverse()
+    {
+        if (reverseDistanceRemaining <= 0f || currentWaypointIndex == 0)
         {
-            Vector3 dir = (transform.position - followTarget.position).normalized;
-            transform.position = followTarget.position + dir * space;
+            IsConnected = true;
+            isReversing = false;
+            isMoving = true;
+            return;
         }
+
+        Vector3 prevWaypoint = waypoints[currentWaypointIndex - 1].position;
+        float step = Mathf.Min(connectMoveSpeed * Time.deltaTime, reverseDistanceRemaining);
+        float distToPrev = Vector3.Distance(transform.position, prevWaypoint);
+
+        if (distToPrev <= step)
+        {
+            reverseDistanceRemaining -= distToPrev;
+            transform.position = prevWaypoint;
+            currentWaypointIndex--;
+        }
+        else
+        {
+            reverseDistanceRemaining -= step;
+            transform.position = Vector3.MoveTowards(transform.position, prevWaypoint, step);
+        }
+
+        if (reverseDistanceRemaining <= 0f)
+        {
+            IsConnected = true;
+            isReversing = false;
+            isMoving = true;
+        }
+    }
+
+    public Vector3 GetMoveDirection()
+    {
+        if (waypoints == null || currentWaypointIndex >= waypoints.Length)
+        {
+            return Vector3.up;
+        }
+
+        return (waypoints[currentWaypointIndex].position - transform.position).normalized;
+    }
+
+    public void SetActive(bool active)
+    {
+        isActive = active;
+        gameObject.SetActive(active);
+    }
+
+    public void StartReverse(float distance)
+    {
+        reverseDistanceRemaining = distance;
+        isReversing = true;
+        isMoving = false;
+        IsConnected = false;
     }
 
     public void TakeDamage(float damage)
@@ -60,6 +139,6 @@ public class MonsterBody : MonoBehaviour
     private void Die()
     {
         isActive = false;
-        parentMonster.OnBodyDead(this);
+        monsterHead.OnBodyDead(this);
     }
 }

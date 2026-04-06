@@ -4,9 +4,9 @@ using UnityEngine;
 public class MonsterData : ScriptableObject
 {
     public float bodySpawnCooldown;
-    public float bodySpace;
     public float firstBodyHp;
     public float bodyHpIncrease;
     public int maxBodyCount;
     public float moveSpeed;
+    public float bodySpace;
 }

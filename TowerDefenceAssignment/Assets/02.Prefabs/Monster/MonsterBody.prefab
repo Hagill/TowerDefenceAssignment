@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f4ae8e546fff8e4b84beaf379c0611c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterBody
+  connectMoveSpeed: 2
 --- !u!212 &3611767781193567611
 SpriteRenderer:
   serializedVersion: 2

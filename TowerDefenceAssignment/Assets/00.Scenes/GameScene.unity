@@ -166,8 +166,6 @@ MonoBehaviour:
   pools:
   - prefab: {fileID: 3313020399635634423, guid: 25593a327e090c3479d58610e88715cf, type: 3}
     size: 50
-  - prefab: {fileID: 5962383096974813988, guid: de132c4af31f5c64698d5240aff03a09, type: 3}
-    size: 50
 --- !u!1 &37551449
 GameObject:
   m_ObjectHideFlags: 0
@@ -1126,7 +1124,8 @@ MonoBehaviour:
   - {fileID: 689757690}
   - {fileID: 1691383389}
   - {fileID: 295388569}
-  connectMoveSpeed: 5
+  connectMoveSpeed: 2
+  bodySpace: 1
 --- !u!4 &890154234
 Transform:
   m_ObjectHideFlags: 0
@@ -1136,7 +1135,7 @@ Transform:
   m_GameObject: {fileID: 890154232}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3, y: 4, z: 0}
+  m_LocalPosition: {x: -2, y: 4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1929,7 +1928,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1528755690}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

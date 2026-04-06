@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6f330589423e85419e76c55bf4c90f8, type: 3}
   m_Name: MonsterData
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
-  bodySpawnCooldown: 2
-  bodySpace: 1
+  bodySpawnCooldown: 1.5
   firstBodyHp: 50
   bodyHpIncrease: 10
   maxBodyCount: 30
   moveSpeed: 0.5
+  bodySpace: 0.8

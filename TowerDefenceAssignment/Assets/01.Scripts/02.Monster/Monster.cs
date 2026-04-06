@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Monster : MonoBehaviour
@@ -9,15 +9,20 @@ public class Monster : MonoBehaviour
     [SerializeField] private GameObject bodyPrefab;
     [SerializeField] private GameSceneManager gameSceneManager;
 
+    private int activeBodyCount;
+
+    private List<MonsterBody> allBodyList = new List<MonsterBody>();
     private List<MonsterBody> activeBodyList = new List<MonsterBody>();
     private int spawnCount;
 
+    private Coroutine connectCoroutine;
+
     public float BodySpawnCooldown { get; private set; }
-    public float BodySpace { get; private set; }
     public float FirstBodyHp { get; private set; }
     public float BodyHpIncrease { get; private set; }
     public int MaxBodyCount { get; private set; }
     public float MoveSpeed { get; private set; }
+    public float BodySpace { get; private set; }
 
     private void Start()
     {
@@ -25,57 +30,65 @@ public class Monster : MonoBehaviour
         {
             InitData(monsterData);
         }
-        
-        spawnCount = 0;
-        StartCoroutine(SpawnBodyCoroutine());
+
+        SpawnBody();
+        head.InitBodies(activeBodyList);
+
+        StartCoroutine(ActiveBodyCoroutine());
     }
 
     private void InitData(MonsterData monsterData)
     {
         BodySpawnCooldown = monsterData.bodySpawnCooldown;
-        BodySpace = monsterData.bodySpace;
         FirstBodyHp = monsterData.firstBodyHp;
         BodyHpIncrease = monsterData.bodyHpIncrease;
         MaxBodyCount = monsterData.maxBodyCount;
         MoveSpeed = monsterData.moveSpeed;
-    }
-
-    private IEnumerator SpawnBodyCoroutine()
-    {
-        while (spawnCount < MaxBodyCount)
-        {
-            yield return new WaitForSeconds(BodySpawnCooldown);
-            SpawnBody();
-        }
+        BodySpace = monsterData.bodySpace;
+        spawnCount = 0;
     }
 
     private void SpawnBody()
     {
-        GameObject bodyObject = ObjectPoolManager.Instance.SpawnFromPool(bodyPrefab);
-        MonsterBody newBody = bodyObject.GetComponent<MonsterBody>();
-
-        if (newBody != null)
+        for (int i = 0; i < MaxBodyCount; i++)
         {
-            float hp = FirstBodyHp + BodyHpIncrease * spawnCount;
+            GameObject bodyObject = Instantiate(bodyPrefab, head.PathStartPoint, Quaternion.identity);
+            MonsterBody body = bodyObject.GetComponent<MonsterBody>();
+
+            if (body != null)
+            {
+                float hp = FirstBodyHp + BodyHpIncrease * i;
+                body.Init(head, head.Waypoints, MoveSpeed, head.ConnectMoveSpeed, hp);
+                body.SetActive(false);
+                allBodyList.Add(body);
+            }
+        }
+    }
+
+    private IEnumerator ActiveBodyCoroutine()
+    {
+        while (activeBodyCount < allBodyList.Count - 1)
+        {
+            yield return new WaitForSeconds(BodySpawnCooldown);
+
+            if (spawnCount >= MaxBodyCount) yield break;
+
+            MonsterBody body = allBodyList[spawnCount];
+            body.SetActive(true);
+
+            activeBodyList.Add(body);
+
             spawnCount++;
-
-            bodyObject.transform.position = head.PathStartPoint;
-
-            Transform target = activeBodyList.Count == 0 ? head.transform : activeBodyList[activeBodyList.Count - 1].transform;
-
-            newBody.Init(this, target, BodySpace, hp);
-            activeBodyList.Add(newBody);
         }
     }
 
     public void OnBodyDead(MonsterBody deadBody)
     {
         int deadIndex = activeBodyList.IndexOf(deadBody);
-        
         if (deadIndex < 0) return;
-        
+
         activeBodyList.RemoveAt(deadIndex);
-        ObjectPoolManager.Instance.ReturnToPool(deadBody.gameObject, bodyPrefab);
+        deadBody.SetActive(false);
 
         if (activeBodyList.Count == 0 && spawnCount >= MaxBodyCount)
         {
@@ -83,26 +96,32 @@ public class Monster : MonoBehaviour
             return;
         }
 
-        StartCoroutine(ConnectBodyCoroutine(deadIndex));
+        if (connectCoroutine != null) StopCoroutine(connectCoroutine);
+        connectCoroutine = StartCoroutine(ConnectBodyCoroutine(deadIndex));
     }
 
-    private IEnumerator ConnectBodyCoroutine(int index)
+    private IEnumerator ConnectBodyCoroutine(int deadIndex)
     {
-        for (int i = index; i < activeBodyList.Count; i++)
-        {
-            Transform target = i == 0
-                ? head.transform
-                : activeBodyList[i - 1].transform;
+        foreach (var body in activeBodyList) body.SetMoving(false);
 
-            activeBodyList[i].SetFollowTarget(target);
-        }
-        if (index == 0)
+        if (deadIndex > 0)
         {
-            Vector3 targetPos = activeBodyList[0].transform.position;
-            head.StartReverse(targetPos);
-            yield return new WaitUntil(() => head.IsConnected);
-            head.StopReverse();
+            for (int i = 0; i < deadIndex; i++)
+            {
+                activeBodyList[i].StartReverse(BodySpace);
+            }
+
+            yield return new WaitUntil(() => {
+                for (int i = 0; i < deadIndex; i++)
+                {
+                    if (!activeBodyList[i].IsConnected) return false;
+                }
+                return true;
+            });
         }
+
+        foreach (var body in activeBodyList) body.SetMoving(true);
+        connectCoroutine = null;
     }
 
     private void OnAllMonsterDead()
