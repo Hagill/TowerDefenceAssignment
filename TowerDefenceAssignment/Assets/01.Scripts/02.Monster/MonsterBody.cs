@@ -15,6 +15,7 @@ public class MonsterBody : MonoBehaviour
     private float moveSpeed;
     private float connectMoveSpeed;
     private float reverseDistanceRemaining;
+    private float lastDamageTime;
 
     private float maxHp;
     private float currentHp;
@@ -33,6 +34,7 @@ public class MonsterBody : MonoBehaviour
         isMoving = true;
         isReversing = false;
         IsConnected = false;
+        lastDamageTime = 0f;
 
         maxHp = hp;
         currentHp = maxHp;
@@ -140,6 +142,9 @@ public class MonsterBody : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if (Time.time - lastDamageTime < 0.1f) return;
+
+        lastDamageTime = Time.time;
         currentHp -= damage;
         UpdateHpText();
 
